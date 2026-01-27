@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Reading Wrapped</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+
+  <h1>📚 Your Reading Wrapped <%= selectedYear %></h1>
+
+  <!-- Seletor de ano -->
+  <form method="GET" action="/dashboard" style="margin: 20px 0;">
+    <select name="year" onchange="this.form.submit()" style="padding:12px;border-radius:12px;">
+      <% years.forEach(y => { %>
+        <option value="<%= y.year %>" <%= y.year == selectedYear ? "selected" : "" %>>
+          <%= y.year %>
+        </option>
+      <% }) %>
+    </select>
+  </form>
+
+  <!-- Cards estilo Spotify Wrapped -->
+  <div class="grid">
+    <div class="card">
+      <h2>📚 Total no ano</h2>
+      <p style="font-size:2rem;"><%= totalYear %> livros</p>
+    </div>
+
+    <div class="card">
+      <h2>📅 Média mensal</h2>
+      <p style="font-size:2rem;"><%= avgPerMonth %> livros/mês</p>
+    </div>
+
+    <div class="card">
+      <h2>🥇 Melhor mês</h2>
+      <p style="font-size:2rem;"><%= bestMonth.month %></p>
+      <p><%= bestMonth.total %> livros lidos</p>
+    </div>
+  </div>
+
+  <!-- Frase automática -->
+  <div class="card" style="margin-top:30px;">
+    <h2>🧠 Seu perfil de leitura</h2>
+    <p>
+      <% if (totalYear === 0) { %>
+        Você ainda não registrou leituras em <%= selectedYear %>. Que tal começar agora? 📖
+      <% } else if (avgPerMonth >= 3) { %>
+        Você é um leitor extremamente consistente. Disciplina de elite 📚🔥
+      <% } else if (avgPerMonth >= 1) { %>
+        Você manteve um hábito sólido de leitura. Excelente constância 👏
+      <% } else { %>
+        Leituras pontuais, mas com potencial para crescer 🚀
+      <% } %>
+    </p>
+  </div>
+
+  <!-- Gráfico -->
+  <div class="card" style="margin-top:30px;">
+    <h2>📈 Evolução ao longo do ano</h2>
+    <canvas id="booksChart" height="100"></canvas>
+  </div>
+
+  <br>
+  <a href="/" class="button">← Voltar</a>
+
+</div>
+
+<script>
+  const dataFromServer = JSON.parse('<%- JSON.stringify(chartData) %>');
+
+  const labels = dataFromServer.map(item => item.month);
+  const values = dataFromServer.map(item => parseInt(item.total));
+
+  new Chart(document.getElementById("booksChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        tension: 0.4,
+        fill: true,
+        borderWidth: 3,
+        pointRadius: 6
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>

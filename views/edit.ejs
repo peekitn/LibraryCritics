@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="container">
+  <h1>Editar Livro</h1>
+
+  <form method="POST">
+    <input name="title" value="<%= book.title %>" required>
+    <input name="author" value="<%= book.author %>" required>
+    <input type="number" name="rating" min="1" max="10" value="<%= book.rating %>">
+
+    <input
+      type="date"
+      name="date_read"
+      value="<%= book.date_read ? book.date_read.toISOString().split('T')[0] : '' %>"
+    >
+
+    <input name="tags" value="<%= book.tags %>">
+    <textarea name="notes"><%= book.notes %></textarea>
+    <input
+      name="cover_url"
+      placeholder="URL da capa (opcional)"
+      value="<%= book.cover_url %>"
+    >
+
+    <button class="button">Salvar</button>
+  </form>
+
+  <form method="POST" action="/delete/<%= book.id %>">
+    <button style="background:#ef4444" class="button">Apagar</button>
+  </form>
+
+  <br>
+  <a href="/">← Voltar</a>
+</div>
+</body>
+</html>

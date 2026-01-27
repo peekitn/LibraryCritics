@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Minha Biblioteca</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📚 Minha Biblioteca</h1>
+    <div>
+      <a href="/new" class="button">+ Novo</a>
+      <a href="/dashboard" class="button">📊 Dashboard</a>
+    </div>
+  </header>
+
+  <form method="GET" class="search">
+    <input
+      type="text"
+      name="search"
+      placeholder="🔍 Buscar por título ou autor..."
+      value="<%= search %>"
+    >
+  </form>
+
+  <div class="grid">
+    <% books.forEach(book => { %>
+      <div class="card">
+        <img src="<%= book.cover_url || 'https://via.placeholder.com/200x300?text=Sem+Capa' %>">
+
+        <h3><%= book.title %></h3>
+        <p><%= book.author %></p>
+        <p>⭐ <%= book.rating || '-' %></p>
+
+        <% if (book.tags) { %>
+          <p class="tags">🏷️ <%= book.tags %></p>
+        <% } %>
+
+        <a href="/edit/<%= book.id %>">Editar</a>
+      </div>
+    <% }) %>
+  </div>
+</div>
+</body>
+</html>
