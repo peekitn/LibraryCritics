@@ -4,25 +4,116 @@
   <meta charset="UTF-8">
   <title>Registrar - Minha Biblioteca</title>
   <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* Tela centralizada */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0e7ff, #f8fafc);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .register-card {
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .register-card h1 {
+      font-size: 2rem;
+      margin-bottom: 25px;
+      color: #1e293b;
+    }
+
+    .register-card input {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .register-card input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+    }
+
+    .register-card .button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 18px rgba(99,102,241,0.25);
+    }
+
+    .register-card .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99,102,241,0.35);
+    }
+
+    .register-card .error {
+      color: #ef4444;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .register-footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #475569;
+    }
+
+    .register-footer a {
+      background: #4ade80;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 15px rgba(74,222,128,0.25);
+    }
+
+    .register-footer a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(74,222,128,0.35);
+    }
+  </style>
 </head>
 <body>
-<div class="container" style="max-width:400px; margin-top:80px;">
-  <h1>📝 Criar Conta</h1>
+  <div class="register-card">
+    <h1>📝 Criar Conta</h1>
 
-  <% if (error) { %>
-    <p style="color:red; margin-bottom:15px;"><%= error %></p>
-  <% } %>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
 
-  <form method="POST" action="/register">
-    <input name="username" placeholder="Usuário" required>
-    <input type="email" name="email" placeholder="E-mail" required>
-    <input type="password" name="password" placeholder="Senha" required>
-    <button class="button">Registrar</button>
-  </form>
+    <form method="POST" action="/register">
+      <input name="username" placeholder="Usuário" required>
+      <input type="email" name="email" placeholder="E-mail" required>
+      <input type="password" name="password" placeholder="Senha" required>
+      <button class="button" type="submit">Registrar</button>
+    </form>
 
-  <p style="margin-top:15px;">
-    Já tem conta? <a href="/login">Login</a>
-  </p>
-</div>
+    <div class="register-footer">
+      <p>Já tem conta?</p>
+      <a href="/login">Login</a>
+    </div>
+  </div>
 </body>
 </html>

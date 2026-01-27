@@ -7,14 +7,15 @@
 </head>
 <body>
 <div class="container">
+
   <header>
     <h1>📚 Minha Biblioteca</h1>
+
     <div>
-      <% if (user) { %>
-        <a href="/logout" class="button" style="background:#ef4444">🚪 Sair</a>
-      <% } %>
       <a href="/new" class="button">+ Novo</a>
       <a href="/dashboard" class="button">📊 Dashboard</a>
+      <a href="/profile" class="button">👤 Perfil</a>
+      <a href="/logout" class="button" style="background:#ef4444;">Sair</a>
     </div>
   </header>
 
@@ -44,6 +45,7 @@
       </div>
     <% }) %>
   </div>
+
 </div>
 </body>
 </html>
