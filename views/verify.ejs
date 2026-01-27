@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Verificação - Minha Biblioteca</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="container" style="max-width:400px; margin-top:80px;">
+  <h1>📧 Verificar Conta</h1>
+
+  <p>Digite o código abaixo para confirmar sua conta:</p>
+
+  <% if (error) { %>
+    <p style="color:red; margin-bottom:15px;"><%= error %></p>
+  <% } %>
+
+  <!-- Código mostrado na tela para teste -->
+  <p style="font-size:1.3rem; font-weight:bold; color:#6366f1; margin-bottom:20px;">
+    Código de teste: <%= codeForTest %>
+  </p>
+
+  <form method="POST" action="/verify">
+    <input type="text" name="code" placeholder="Código de verificação" required>
+    <input type="hidden" name="username" value="<%= username %>">
+    <input type="hidden" name="email" value="<%= email %>">
+    <input type="hidden" name="password" value="<%= password %>">
+    <button class="button">Confirmar</button>
+  </form>
+</div>
+</body>
+</html>
