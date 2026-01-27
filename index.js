@@ -133,6 +133,54 @@ app.get("/", authMiddleware, async (req, res) => {
   res.render("index", { books: books.rows, search });
 });
 
+// ----------------- DASHBOARD -----------------
+app.get("/dashboard", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const selectedYear = req.query.year || new Date().getFullYear();
+
+    const yearsResult = await db.query(`
+      SELECT DISTINCT EXTRACT(YEAR FROM date_read) AS year
+      FROM books
+      WHERE user_id=$1 AND date_read IS NOT NULL
+      ORDER BY year DESC
+    `, [userId]);
+
+    const booksPerMonth = await db.query(`
+      SELECT 
+        EXTRACT(MONTH FROM date_read) AS month_number,
+        TO_CHAR(date_read, 'Mon') AS month,
+        COUNT(*) AS total
+      FROM books
+      WHERE user_id=$1
+        AND date_read IS NOT NULL
+        AND EXTRACT(YEAR FROM date_read) = $2
+      GROUP BY month_number, month
+      ORDER BY month_number
+    `, [userId, selectedYear]);
+
+    const totalYear = booksPerMonth.rows.reduce((sum, m) => sum + Number(m.total), 0);
+    const avgPerMonth = (totalYear / 12).toFixed(1);
+
+    const bestMonth = booksPerMonth.rows.reduce((best, current) => {
+      return Number(current.total) > Number(best.total) ? current : best;
+    }, booksPerMonth.rows[0] || { month: "-", total: 0 });
+
+    res.render("dashboard", {
+      chartData: booksPerMonth.rows,
+      years: yearsResult.rows,
+      selectedYear,
+      totalYear,
+      avgPerMonth,
+      bestMonth
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro no dashboard");
+  }
+});
+
 // ----------------- CRUD -----------------
 app.get("/new", authMiddleware, (req, res) => res.render("new"));
 
@@ -155,6 +203,40 @@ app.post("/add", authMiddleware, async (req, res) => {
     [req.session.user.id, title, author, rating || null, notes, date_read || null, finalCover, tags]
   );
 
+  res.redirect("/");
+});
+
+// --------- EDITAR LIVRO ----------
+app.get("/edit/:id", authMiddleware, async (req, res) => {
+  const result = await db.query(
+    "SELECT * FROM books WHERE id=$1 AND user_id=$2",
+    [req.params.id, req.session.user.id]
+  );
+
+  if (result.rows.length === 0) return res.send("Livro não encontrado");
+
+  res.render("edit", { book: result.rows[0] });
+});
+
+app.post("/edit/:id", authMiddleware, async (req, res) => {
+  const { title, author, rating, notes, date_read, tags, cover_url } = req.body;
+
+  await db.query(
+    `UPDATE books 
+     SET title=$1, author=$2, rating=$3, notes=$4, date_read=$5, tags=$6, cover_url=$7 
+     WHERE id=$8 AND user_id=$9`,
+    [title, author, rating || null, notes, date_read || null, tags, cover_url, req.params.id, req.session.user.id]
+  );
+
+  res.redirect("/");
+});
+
+// --------- DELETE LIVRO ----------
+app.post("/delete/:id", authMiddleware, async (req, res) => {
+  await db.query(
+    "DELETE FROM books WHERE id=$1 AND user_id=$2",
+    [req.params.id, req.session.user.id]
+  );
   res.redirect("/");
 });
 
