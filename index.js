@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const express = require("express");
 const axios = require("axios");
 const db = require("./db/db");
@@ -55,15 +56,23 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   const result = await db.query(
-    "SELECT * FROM users WHERE username=$1 AND password=$2",
-    [username, password]
+    "SELECT * FROM users WHERE username=$1",
+    [username]
   );
 
   if (result.rows.length === 0) {
     return res.render("login", { error: "Usuário ou senha inválidos" });
   }
 
-  req.session.user = result.rows[0];
+  const user = result.rows[0];
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+
+  if (!passwordMatch) {
+    return res.render("login", { error: "Usuário ou senha inválidos" });
+  }
+
+  req.session.user = user;
   res.redirect("/");
 });
 
@@ -110,9 +119,11 @@ app.post("/verify", async (req, res) => {
     return res.render("verify", { username, email, password, error: "Código inválido" });
   }
 
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   await db.query(
     "INSERT INTO users (username, email, password) VALUES ($1,$2,$3)",
-    [username, email, password]
+    [username, email, hashedPassword]
   );
 
   delete verificationCodes[email];
@@ -188,14 +199,29 @@ app.post("/add", authMiddleware, async (req, res) => {
   const { title, author, rating, notes, date_read, tags, cover_url } = req.body;
   let finalCover = cover_url || "";
 
+  // 🔥 MELHORIA NA BUSCA DE CAPA OPENLIBRARY
   if (!finalCover) {
     try {
       const response = await axios.get(
-        `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`
+        `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`,
+        {
+          headers: {
+            "User-Agent": "MinhaBibliotecaApp/1.0"
+          }
+        }
       );
-      const book = response.data.docs.find(b => b.cover_i);
-      if (book) finalCover = `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`;
-    } catch {}
+
+      const book = response.data.docs.find(b => b.cover_i || b.isbn?.length);
+
+      if (book?.cover_i) {
+        finalCover = `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg`;
+      } else if (book?.isbn?.length) {
+        finalCover = `https://covers.openlibrary.org/b/isbn/${book.isbn[0]}-L.jpg`;
+      }
+
+    } catch (err) {
+      console.log("Erro ao buscar capa:", err.message);
+    }
   }
 
   await db.query(
