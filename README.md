@@ -83,7 +83,6 @@ Inspirado em experiências como *Goodreads* e *Spotify Wrapped*, mas focado em *
 - **Chart.js**
 
 ---
-[![Assista ao vídeo](https://img.youtube.com/vi/3Z2LjrqCzlE/hqdefault.jpg)](https://youtu.be/3Z2LjrqCzlE)
 
 
 
