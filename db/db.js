@@ -1,4 +1,3 @@
-// db.js
 const { Pool } = require("pg");
 require("dotenv").config();
 
@@ -9,8 +8,8 @@ const pool = new Pool({
   host: process.env.DB_HOST,                   // host do banco
   port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432, // garante número
   database: process.env.DB_NAME,               // nome do banco
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false, 
-  // Se você definir DB_SSL=true no Railway, ativa SSL. Caso contrário, não usa.
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
+  // DB_SSL=true no Railway ativa SSL
 });
 
 // Testa a conexão automaticamente (opcional)
