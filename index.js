@@ -148,8 +148,10 @@ app.get("/", authMiddleware, async (req, res) => {
 app.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const selectedYear = req.query.year || new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
+    const selectedYear = parseInt(req.query.year) || currentYear;
 
+    // Anos disponíveis (fallback para ano atual)
     const yearsResult = await db.query(`
       SELECT DISTINCT EXTRACT(YEAR FROM date_read) AS year
       FROM books
@@ -157,7 +159,13 @@ app.get("/dashboard", authMiddleware, async (req, res) => {
       ORDER BY year DESC
     `, [userId]);
 
-    const booksPerMonth = await db.query(`
+    const years =
+      yearsResult.rows.length > 0
+        ? yearsResult.rows
+        : [{ year: currentYear }];
+
+    // Livros por mês
+    const booksPerMonthResult = await db.query(`
       SELECT 
         EXTRACT(MONTH FROM date_read) AS month_number,
         TO_CHAR(date_read, 'Mon') AS month,
@@ -170,27 +178,103 @@ app.get("/dashboard", authMiddleware, async (req, res) => {
       ORDER BY month_number
     `, [userId, selectedYear]);
 
-    const totalYear = booksPerMonth.rows.reduce((sum, m) => sum + Number(m.total), 0);
-    const avgPerMonth = (totalYear / 12).toFixed(1);
+    const booksPerMonth = booksPerMonthResult.rows || [];
 
-    const bestMonth = booksPerMonth.rows.reduce((best, current) => {
-      return Number(current.total) > Number(best.total) ? current : best;
-    }, booksPerMonth.rows[0] || { month: "-", total: 0 });
+    // Total no ano
+    const totalYear = booksPerMonth.reduce(
+      (sum, m) => sum + Number(m.total),
+      0
+    );
+
+    // Média mensal (NUMBER, não string)
+    const avgPerMonth =
+      totalYear === 0 ? 0 : Number((totalYear / 12).toFixed(1));
+
+    // Melhor mês (safe)
+    const bestMonth =
+      booksPerMonth.length === 0
+        ? { month: "-", total: 0 }
+        : booksPerMonth.reduce((best, cur) =>
+            Number(cur.total) > Number(best.total) ? cur : best
+          );
+
+    // Nota média
+    const avgRatingResult = await db.query(`
+      SELECT ROUND(AVG(rating),1) AS avg_rating
+      FROM books
+      WHERE user_id=$1
+        AND rating IS NOT NULL
+        AND EXTRACT(YEAR FROM date_read) = $2
+    `, [userId, selectedYear]);
+
+    const avgRating =
+      avgRatingResult.rows[0]?.avg_rating ?? "-";
+
+    // Tags mais lidas
+    const tagsResult = await db.query(`
+      SELECT tags
+      FROM books
+      WHERE user_id=$1
+        AND tags IS NOT NULL
+        AND EXTRACT(YEAR FROM date_read) = $2
+    `, [userId, selectedYear]);
+
+    const tagCount = {};
+    tagsResult.rows.forEach(row => {
+      row.tags.split(",").forEach(tag => {
+        const clean = tag.trim().toLowerCase();
+        if (!clean) return;
+        tagCount[clean] = (tagCount[clean] || 0) + 1;
+      });
+    });
+
+    const topTag =
+      Object.keys(tagCount).length > 0
+        ? Object.entries(tagCount).sort((a, b) => b[1] - a[1])[0][0]
+        : "-";
+
+    // Comparação com ano anterior
+    const prevYearResult = await db.query(`
+      SELECT COUNT(*) AS total
+      FROM books
+      WHERE user_id=$1
+        AND date_read IS NOT NULL
+        AND EXTRACT(YEAR FROM date_read) = $2
+    `, [userId, selectedYear - 1]);
+
+    const prevYearTotal = Number(prevYearResult.rows[0]?.total || 0);
+
+    const diff =
+      prevYearTotal === 0
+        ? null
+        : Math.round(((totalYear - prevYearTotal) / prevYearTotal) * 100);
+
+    // Perfil do leitor (robusto)
+    let readerProfile = "📖 Novo leitor";
+    if (avgPerMonth >= 3) readerProfile = "🔥 Leitor extremamente consistente";
+    else if (avgPerMonth >= 1) readerProfile = "👏 Leitor consistente";
+    else if (totalYear > 0) readerProfile = "🚀 Leitor ocasional";
 
     res.render("dashboard", {
-      chartData: booksPerMonth.rows,
-      years: yearsResult.rows,
+      years,
       selectedYear,
+      chartData: booksPerMonth,
       totalYear,
       avgPerMonth,
-      bestMonth
+      bestMonth,
+      avgRating,
+      topTag,
+      diff,
+      readerProfile
     });
 
   } catch (err) {
-    console.error(err);
-    res.send("Erro no dashboard");
+    console.error("Erro no dashboard:", err);
+    res.send("Erro ao carregar dashboard");
   }
 });
+
+
 
 // ----------------- CRUD -----------------
 app.get("/new", authMiddleware, (req, res) => res.render("new"));

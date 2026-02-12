@@ -5,99 +5,194 @@
   <title>Reading Wrapped</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .dashboard-header { margin-bottom: 50px; }
+    .year-selector { margin-top: 25px; margin-bottom: 50px; }
+
+    .empty-graph {
+      text-align: center;
+      padding: 50px 20px;
+      color: #64748b;
+    }
+
+    .empty-graph img {
+      max-width: 220px;
+      margin-bottom: 20px;
+    }
+
+    .badges {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .badge {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .compare-card {
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 15px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    .compare-card strong {
+      font-size: 1.3rem;
+      display: block;
+    }
+  </style>
 </head>
 <body>
+
 <div class="container">
 
-  <h1>📚 Your Reading Wrapped <%= selectedYear %></h1>
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <h1>📊 Reading Wrapped <%= selectedYear %></h1>
+    <p><strong><%= readerProfile %></strong></p>
 
-  <!-- Seletor de ano -->
-  <form method="GET" action="/dashboard" style="margin: 20px 0;">
-    <select name="year" onchange="this.form.submit()" style="padding:12px;border-radius:12px;">
-      <% years.forEach(y => { %>
-        <option value="<%= y.year %>" <%= y.year == selectedYear ? "selected" : "" %>>
-          <%= y.year %>
-        </option>
-      <% }) %>
-    </select>
-  </form>
-
-  <!-- Cards estilo Spotify Wrapped -->
-  <div class="grid">
-    <div class="card">
-      <h2>📚 Total no ano</h2>
-      <p style="font-size:2rem;"><%= totalYear %> livros</p>
-    </div>
-
-    <div class="card">
-      <h2>📅 Média mensal</h2>
-      <p style="font-size:2rem;"><%= avgPerMonth %> livros/mês</p>
-    </div>
-
-    <div class="card">
-      <h2>🥇 Melhor mês</h2>
-      <p style="font-size:2rem;"><%= bestMonth.month %></p>
-      <p><%= bestMonth.total %> livros lidos</p>
-    </div>
+    <form method="GET" action="/dashboard" class="year-selector">
+      <select name="year" onchange="this.form.submit()">
+        <% years.forEach(y => { %>
+          <option value="<%= y.year %>" <%= y.year == selectedYear ? "selected" : "" %>>
+            <%= y.year %>
+          </option>
+        <% }) %>
+      </select>
+    </form>
   </div>
 
-  <!-- Frase automática -->
-  <div class="card" style="margin-top:30px;">
-    <h2>🧠 Seu perfil de leitura</h2>
-    <p>
-      <% if (totalYear === 0) { %>
-        Você ainda não registrou leituras em <%= selectedYear %>. Que tal começar agora? 📖
-      <% } else if (avgPerMonth >= 3) { %>
-        Você é um leitor extremamente consistente. Disciplina de elite 📚🔥
-      <% } else if (avgPerMonth >= 1) { %>
-        Você manteve um hábito sólido de leitura. Excelente constância 👏
+  <% if (totalYear === 0) { %>
+
+    <!-- ESTADO VAZIO -->
+    <div class="card" style="text-align:center;padding:50px;">
+      <h2>📭 Nenhuma leitura em <%= selectedYear %></h2>
+      <p>Quando você adicionar livros, seu Reading Wrapped aparece aqui.</p>
+      <br>
+      <a href="/new" class="button">➕ Adicionar primeiro livro</a>
+    </div>
+
+  <% } else { %>
+
+    <!-- MÉTRICAS -->
+    <div class="grid">
+      <div class="card">
+        <h3>📚 Total</h3>
+        <p style="font-size:2rem;"><%= totalYear %></p>
+      </div>
+
+      <div class="card">
+        <h3>📅 Média mensal</h3>
+        <p style="font-size:2rem;"><%= avgPerMonth %></p>
+      </div>
+
+      <div class="card">
+        <h3>⭐ Nota média</h3>
+        <p style="font-size:2rem;"><%= avgRating || "—" %></p>
+      </div>
+
+      <div class="card">
+        <h3>🏷️ Tag do ano</h3>
+        <p style="font-size:1.5rem;"><%= topTag || "—" %></p>
+      </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="card" style="margin-top:45px;">
+      <h2>🏅 Badges de leitura</h2>
+
+      <div class="badges">
+        <% if (totalYear >= 1) { %><span class="badge">📖 Primeira leitura</span><% } %>
+        <% if (totalYear >= 5) { %><span class="badge">🔥 5 livros</span><% } %>
+        <% if (totalYear >= 10) { %><span class="badge">💪 10 livros</span><% } %>
+        <% if (totalYear >= 25) { %><span class="badge">🏆 25 livros</span><% } %>
+        <% if (totalYear >= 50) { %><span class="badge">👑 50 livros</span><% } %>
+      </div>
+    </div>
+
+    <!-- COMPARAÇÃO ENTRE ANOS (SAFE) -->
+    <% if (typeof compareYears !== "undefined" && compareYears.length > 0) { %>
+      <div class="card" style="margin-top:45px;">
+        <h2>📊 Comparação entre anos</h2>
+
+        <div class="compare-grid">
+          <% compareYears.forEach(y => { %>
+            <div class="compare-card">
+              <small><%= y.year %></small>
+              <strong><%= y.total %></strong>
+              <span>livros</span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- GRÁFICO -->
+    <div class="card" style="margin-top:45px;">
+      <h2>📈 Evolução mensal</h2>
+
+      <% if (!chartData || chartData.length === 0) { %>
+        <div class="empty-graph">
+          <img src="/empty-reading.svg">
+          <p>Adicione leituras ao longo do ano para ver seu progresso.</p>
+        </div>
       <% } else { %>
-        Leituras pontuais, mas com potencial para crescer 🚀
+        <canvas id="chart"></canvas>
       <% } %>
-    </p>
-  </div>
+    </div>
 
-  <!-- Gráfico -->
-  <div class="card" style="margin-top:30px;">
-    <h2>📈 Evolução ao longo do ano</h2>
-    <canvas id="booksChart" height="100"></canvas>
-  </div>
+  <% } %>
 
-  <br>
+  <br><br>
   <a href="/" class="button">← Voltar</a>
 
 </div>
 
+<% if (chartData && chartData.length > 0) { %>
 <script>
-  const dataFromServer = JSON.parse('<%- JSON.stringify(chartData) %>');
+  const data = JSON.parse('<%- JSON.stringify(chartData) %>');
 
-  const labels = dataFromServer.map(item => item.month);
-  const values = dataFromServer.map(item => parseInt(item.total));
-
-  new Chart(document.getElementById("booksChart"), {
+  new Chart(document.getElementById("chart"), {
     type: "line",
     data: {
-      labels,
+      labels: data.map(d => d.month),
       datasets: [{
-        data: values,
-        tension: 0.4,
+        data: data.map(d => d.total),
         fill: true,
+        tension: 0.4,
         borderWidth: 3,
-        pointRadius: 6
+        pointRadius: 6,
+        backgroundColor: ctx => {
+          const g = ctx.chart.ctx.createLinearGradient(0,0,0,300);
+          g.addColorStop(0,"rgba(99,102,241,.4)");
+          g.addColorStop(1,"rgba(99,102,241,.05)");
+          return g;
+        }
       }]
     },
     options: {
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { stepSize: 1 }
-        }
-      }
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
     }
   });
 </script>
+<% } %>
+
 </body>
 </html>

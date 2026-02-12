@@ -11,49 +11,68 @@
     }
 
     .profile-container {
-      max-width: 950px;
+      max-width: 1000px;
       margin: 50px auto;
-      padding: 35px;
+      padding: 40px;
       background: white;
-      border-radius: 24px;
-      box-shadow: 0 15px 40px rgba(0,0,0,.08);
+      border-radius: 28px;
+      box-shadow: 0 20px 45px rgba(0,0,0,.08);
     }
 
+    /* HEADER */
     .profile-header {
       display: flex;
       align-items: center;
-      gap: 25px;
-      margin-bottom: 30px;
+      gap: 30px;
+      margin-bottom: 40px;
     }
 
     .avatar {
-      width: 130px;
-      height: 130px;
+      width: 140px;
+      height: 140px;
       border-radius: 50%;
       object-fit: cover;
       border: 4px solid #6366f1;
     }
 
-    .user-info h1 {
+    .user-main h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 30px;
     }
 
-    .user-info p {
-      margin: 6px 0 0;
+    .user-main p {
+      margin: 6px 0;
       color: #64748b;
     }
 
+    .bio-box {
+      margin-top: 15px;
+      background: #f8fafc;
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      font-size: 0.95rem;
+    }
+
+    /* SECTIONS */
     .section {
-      margin-top: 35px;
+      margin-top: 45px;
     }
 
     .section h2 {
-      font-size: 20px;
-      margin-bottom: 12px;
+      font-size: 22px;
+      margin-bottom: 15px;
     }
 
-    textarea, input[type="file"], input[type="text"] {
+    .card {
+      background: #f8fafc;
+      padding: 25px;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+    }
+
+    textarea, input[type="file"] {
       width: 100%;
       padding: 12px;
       border-radius: 14px;
@@ -66,14 +85,13 @@
       resize: vertical;
     }
 
-    /* SEARCH */
+    /* FAVORITOS */
     .search-box {
       margin-bottom: 15px;
     }
 
-    /* LISTA DE LIVROS */
     .book-list {
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -86,7 +104,7 @@
       gap: 12px;
       padding: 10px;
       border-radius: 14px;
-      background: #f8fafc;
+      background: white;
       border: 1px solid #e2e8f0;
       cursor: pointer;
       transition: 0.2s;
@@ -104,6 +122,45 @@
       object-fit: cover;
     }
 
+    /* CHECKBOX CUSTOMIZADO */
+.book-item input[type="checkbox"] {
+  display: none;
+}
+
+.book-item {
+  position: relative;
+}
+
+.book-item::after {
+  content: "✓";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: white;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: 0.2s;
+}
+
+.book-item:has(input:checked)::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.book-item:has(input:checked) {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+
     .book-info {
       flex: 1;
     }
@@ -116,47 +173,52 @@
       color: #64748b;
     }
 
-    /* FAVORITOS VISUAIS */
     .favorites-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 15px;
-      margin-top: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 15px;
     }
 
     .favorite-card {
       background: #f8fafc;
       padding: 12px;
-      border-radius: 16px;
+      border-radius: 18px;
       border: 1px solid #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      text-align: center;
     }
 
     .favorite-card img {
       width: 100%;
       aspect-ratio: 2/3;
       object-fit: cover;
-      border-radius: 12px;
+      border-radius: 14px;
+      margin-bottom: 8px;
     }
 
-    /* DANGER ZONE */
+    /* EMPTY */
+    .empty {
+      text-align: center;
+      color: #64748b;
+      padding: 30px;
+    }
+
+    /* DANGER */
     .danger-zone {
-      margin-top: 50px;
-      padding: 25px;
+      margin-top: 60px;
+      padding: 30px;
       background: linear-gradient(135deg, #fff1f2, #ffe4e6);
       border: 1px solid #fecdd3;
-      border-radius: 20px;
+      border-radius: 24px;
     }
 
     .danger-zone h3 {
-      margin: 0 0 10px 0;
+      margin: 0 0 10px;
       color: #be123c;
     }
 
     .danger-zone p {
-      margin: 0 0 15px 0;
+      margin: 0 0 15px;
       color: #7f1d1d;
       font-size: 0.95rem;
     }
@@ -165,8 +227,8 @@
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: white;
       border: none;
-      padding: 10px 18px;
-      border-radius: 14px;
+      padding: 12px 22px;
+      border-radius: 16px;
       font-weight: 600;
       cursor: pointer;
       box-shadow: 0 8px 25px rgba(239,68,68,0.35);
@@ -181,9 +243,13 @@
   <div class="profile-header">
     <img class="avatar" src="<%= user.avatar || '/default-avatar.png' %>">
 
-    <div class="user-info">
+    <div class="user-main">
       <h1>@<%= user.username %></h1>
       <p><%= user.email %></p>
+
+      <% if (user.bio) { %>
+        <div class="bio-box"><%= user.bio %></div>
+      <% } %>
     </div>
   </div>
 
@@ -191,24 +257,25 @@
   <div class="section">
     <h2>✏️ Editar perfil</h2>
 
-    <form method="POST" action="/profile" enctype="multipart/form-data">
-      <label>Foto de perfil</label>
-      <input type="file" name="avatar">
+    <div class="card">
+      <form method="POST" action="/profile" enctype="multipart/form-data">
+        <label>Foto de perfil</label><br><br>
+        <input type="file" name="avatar">
 
-      <br><br>
+        <br><br>
 
-      <label>Biografia</label>
-      <textarea name="bio" rows="4"><%= user.bio || "" %></textarea>
+        <label>Biografia</label><br><br>
+        <textarea name="bio" rows="4"><%= user.bio || "" %></textarea>
 
-      <br><br>
-
-      <button class="button">Salvar alterações</button>
-    </form>
+        <br><br>
+        <button class="button">Salvar alterações</button>
+      </form>
+    </div>
   </div>
 
-  <!-- FAVORITOS COM BUSCA -->
+  <!-- FAVORITOS -->
   <div class="section">
-    <h2>📚 Escolha até 5 livros favoritos</h2>
+    <h2>📚 Livros favoritos (até 5)</h2>
 
     <input
       type="text"
@@ -218,43 +285,53 @@
       onkeyup="filterBooks()"
     >
 
-    <form method="POST" action="/favorites">
-      <div class="book-list" id="bookList">
-        <% books.forEach(book => { %>
-          <label class="book-item">
-            <input type="checkbox" name="favorites" value="<%= book.id %>"
-              <%= favorites.some(f => f.id === book.id) ? "checked" : "" %> >
+    <div class="card">
+      <% if (books.length === 0) { %>
+        <div class="empty">Você ainda não tem livros na biblioteca.</div>
+      <% } else { %>
+        <form method="POST" action="/favorites">
+          <div class="book-list" id="bookList">
+            <% books.forEach(book => { %>
+              <label class="book-item">
+                <input type="checkbox" name="favorites" value="<%= book.id %>"
+                  <%= favorites.some(f => f.id === book.id) ? "checked" : "" %>>
 
-            <img src="<%= book.cover_url || '/no-cover.png' %>">
+                <img src="<%= book.cover_url || '/no-cover.png' %>">
 
-            <div class="book-info">
-              <strong><%= book.title %></strong><br>
-              <small><%= book.author %></small>
-            </div>
-          </label>
-        <% }) %>
-      </div>
+                <div class="book-info">
+                  <strong><%= book.title %></strong><br>
+                  <small><%= book.author %></small>
+                </div>
+              </label>
+            <% }) %>
+          </div>
 
-      <br>
-      <button class="button">Salvar favoritos</button>
-    </form>
+          <br>
+          <button class="button">Salvar favoritos</button>
+        </form>
+      <% } %>
+    </div>
   </div>
 
   <!-- EXIBIÇÃO FAVORITOS -->
   <div class="section">
     <h2>✨ Seus favoritos</h2>
 
-    <div class="favorites-grid">
-      <% favorites.forEach(book => { %>
-        <div class="favorite-card">
-          <img src="<%= book.cover_url || '/no-cover.png' %>">
-          <strong><%= book.title %></strong>
-        </div>
-      <% }) %>
-    </div>
+    <% if (favorites.length === 0) { %>
+      <div class="empty">Nenhum favorito selecionado ainda.</div>
+    <% } else { %>
+      <div class="favorites-grid">
+        <% favorites.forEach(book => { %>
+          <div class="favorite-card">
+            <img src="<%= book.cover_url || '/no-cover.png' %>">
+            <strong><%= book.title %></strong>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
   </div>
 
-  <div style="margin-top:30px;">
+  <div style="margin-top:35px;">
     <a href="/" class="button">← Voltar para biblioteca</a>
   </div>
 
@@ -273,11 +350,10 @@
 <script>
   function filterBooks() {
     const input = document.getElementById("searchInput").value.toLowerCase();
-    const items = document.querySelectorAll(".book-item");
-
-    items.forEach(item => {
-      const text = item.innerText.toLowerCase();
-      item.style.display = text.includes(input) ? "flex" : "none";
+    document.querySelectorAll(".book-item").forEach(item => {
+      item.style.display = item.innerText.toLowerCase().includes(input)
+        ? "flex"
+        : "none";
     });
   }
 </script>
